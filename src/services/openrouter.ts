@@ -38,13 +38,18 @@ export const generateText = async ({
   max_tokens = 1000,
   temperature = 0.7,
   top_p = 1,
-}: OpenRouterParams): Promise<string> => {
+  paragraphCount = 1,
+}: OpenRouterParams & { paragraphCount?: number }): Promise<string> => {
   try {
+    const adjustedPrompt = paragraphCount > 1 
+      ? `Generate ${paragraphCount} paragraphs about: ${prompt}`
+      : prompt;
+
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
         model,
-        messages: [{ role: 'user', content: prompt }],
+        messages: [{ role: 'user', content: adjustedPrompt }],
         max_tokens,
         temperature,
         top_p,
@@ -87,12 +92,13 @@ export const generateTenseQuestions = async (
 ): Promise<string> => {
   return generateText({
     model,
-    prompt: `Generate ${questionCount} multiple-choice questions to practice the following English tenses: ${tenseTypes}. Distribute the questions evenly among the selected tenses. For each question, provide 4 options (A, B, C, D) and indicate the correct answer. Format the output as a JSON array with the following structure: 
+    prompt: `Generate ${questionCount} multiple-choice questions to practice the following English tenses: ${tenseTypes}. Distribute the questions evenly among the selected tenses. For each question, provide 4 options (A, B, C, D), indicate the correct answer, and provide a detailed explanation of why the answer is correct. Format the output as a JSON array with the following structure: 
     [
       {
         "question": "_____ you _____ to the party yesterday?",
         "options": ["A. Did, go", "B. Have, gone", "C. Were, going", "D. Are, going"],
-        "correctAnswer": "A"
+        "correctAnswer": "A",
+        "explanation": "The correct answer is A (Did, go) because this is a past simple question. We use 'did' as an auxiliary verb to form questions in the past simple tense, followed by the base form of the main verb 'go'. The event happened at a specific time in the past (yesterday)."
       }
     ]`,
     max_tokens: 2000,
