@@ -120,12 +120,15 @@ const HomePage: React.FC = () => {
         <BookOpen className="h-6 w-6 mr-2 text-blue-600 dark:text-blue-400" />
         Generate English Paragraphs
       </h2>
-      
+
       <div className="space-y-6">
         {/* Controls Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="model"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Select AI Model
             </label>
             <select
@@ -141,9 +144,12 @@ const HomePage: React.FC = () => {
               ))}
             </select>
           </div>
-          
+
           <div>
-            <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="prompt"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Select Prompt
             </label>
             <select
@@ -161,7 +167,10 @@ const HomePage: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="paragraphCount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="paragraphCount"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Number of Paragraphs
             </label>
             <input
@@ -170,12 +179,16 @@ const HomePage: React.FC = () => {
               min="1"
               max="5"
               value={paragraphCount}
-              onChange={(e) => setParagraphCount(Math.max(1, Math.min(5, parseInt(e.target.value) || 1)))}
+              onChange={(e) =>
+                setParagraphCount(
+                  Math.max(1, Math.min(5, parseInt(e.target.value) || 1))
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             />
           </div>
         </div>
-        
+
         <div className="flex justify-between">
           <button
             onClick={handleGenerateParagraph}
@@ -188,33 +201,37 @@ const HomePage: React.FC = () => {
                 <span className="ml-2">Generating...</span>
               </div>
             ) : (
-              'Generate Paragraph'
+              "Generate Paragraph"
             )}
           </button>
-          
+
           <button
             onClick={resetAll}
             className="px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 font-medium rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200 flex items-center"
           >
-            <RotateCcw className="h-4 w-4 mr-1" /> Reset
+            <RotateCcw className="h-4 w-4 mr-1" />
           </button>
         </div>
-        
+
         {/* Error Message */}
         {error && (
           <div className="p-4 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 rounded-md">
             <p className="text-red-700 dark:text-red-400">{error}</p>
           </div>
         )}
-        
+
         {/* Generated Paragraph Section */}
         {generatedParagraph && (
           <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Generated Paragraph:</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              Generated Paragraph:
+            </h3>
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-md border border-gray-200 dark:border-gray-600">
-              <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">{generatedParagraph}</p>
+              <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                {generatedParagraph}
+              </p>
             </div>
-            
+
             <div className="mt-4">
               <button
                 onClick={handleTranslateParagraph}
@@ -236,21 +253,27 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         )}
-        
+
         {/* Translated Paragraph Section */}
         {translatedParagraph && (
           <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Indonesian Translation:</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              Indonesian Translation:
+            </h3>
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-md border border-gray-200 dark:border-gray-600">
-              <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">{translatedParagraph}</p>
+              <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                {translatedParagraph}
+              </p>
             </div>
           </div>
         )}
-        
+
         {/* User Translation Input Section */}
         {generatedParagraph && showTranslationInput && (
           <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Your Indonesian Translation:</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              Your Indonesian Translation:
+            </h3>
             <textarea
               value={userTranslation}
               onChange={(e) => setUserTranslation(e.target.value)}
@@ -258,7 +281,7 @@ const HomePage: React.FC = () => {
               rows={5}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             />
-            
+
             <div className="mt-4">
               <button
                 onClick={handleCorrectTranslation}
@@ -280,13 +303,17 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         )}
-        
+
         {/* Correction Result Section */}
         {correctionResult && (
           <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Correction Result:</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              Correction Result:
+            </h3>
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-md border border-gray-200 dark:border-gray-600">
-              <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">{correctionResult}</p>
+              <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                {correctionResult}
+              </p>
             </div>
           </div>
         )}

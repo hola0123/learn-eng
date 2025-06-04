@@ -9,9 +9,10 @@ const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const navigationItems = [
-    { path: '/', label: 'Generate Paragraphs' },
-    { path: '/tense', label: 'Practice Tenses' },
-    { path: '/reading', label: 'Reading Practice' },
+    { path: "/", label: "Generate Paragraphs" },
+    { path: "/tense", label: "Practice Tenses" },
+    { path: "/reading", label: "Reading Practice" },
+    { path: "/writing", label: "Writing Practice" },
   ];
 
   const isActivePath = (path: string) => location.pathname === path;

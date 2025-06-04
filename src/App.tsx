@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import TensePage from './pages/TensePage';
 import ReadingPage from './pages/ReadingPage';
 import { ThemeProvider } from './context/ThemeContext';
+import WritingPage from "./pages/WritingPage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <Route index element={<HomePage />} />
             <Route path="/tense" element={<TensePage />} />
             <Route path="/reading" element={<ReadingPage />} />
+            <Route path="/writing" element={<WritingPage />} />
           </Route>
         </Routes>
       </Router>
