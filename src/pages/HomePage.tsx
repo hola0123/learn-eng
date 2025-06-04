@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { getModels, generateText, translateText, correctText, ModelOption } from '../services/openrouter';
 import { BookOpen, HandPlatter as Translate, CheckCircle, RotateCcw } from 'lucide-react';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const PARAGRAPH_PROMPTS = [
   "Write a short paragraph about climate change",
@@ -13,6 +14,7 @@ const PARAGRAPH_PROMPTS = [
 const HomePage: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState<string>('gpt-3.5-turbo');
   const [selectedPrompt, setSelectedPrompt] = useState<string>(PARAGRAPH_PROMPTS[0]);
+  const [paragraphCount, setParagraphCount] = useState<number>(1);
   const [generatedParagraph, setGeneratedParagraph] = useState<string>('');
   const [translatedParagraph, setTranslatedParagraph] = useState<string>('');
   const [userTranslation, setUserTranslation] = useState<string>('');
@@ -25,7 +27,6 @@ const HomePage: React.FC = () => {
   const [error, setError] = useState<string>('');
 
   React.useEffect(() => {
-    // Load models from environment variables
     setModels(getModels());
   }, []);
 
@@ -42,6 +43,7 @@ const HomePage: React.FC = () => {
       const result = await generateText({
         model: selectedModel,
         prompt: selectedPrompt,
+        paragraphCount,
       });
       
       setGeneratedParagraph(result);
@@ -97,27 +99,28 @@ const HomePage: React.FC = () => {
     setCorrectionResult('');
     setShowTranslationInput(true);
     setError('');
+    setParagraphCount(1);
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-        <BookOpen className="h-6 w-6 mr-2 text-blue-600" />
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+        <BookOpen className="h-6 w-6 mr-2 text-blue-600 dark:text-blue-400" />
         Generate English Paragraphs
       </h2>
       
       <div className="space-y-6">
         {/* Controls Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="model" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Select AI Model
             </label>
             <select
               id="model"
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
               {models.map((model) => (
                 <option key={model.id} value={model.id}>
@@ -128,14 +131,14 @@ const HomePage: React.FC = () => {
           </div>
           
           <div>
-            <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Select Prompt
             </label>
             <select
               id="prompt"
               value={selectedPrompt}
               onChange={(e) => setSelectedPrompt(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
               {PARAGRAPH_PROMPTS.map((prompt, index) => (
                 <option key={index} value={prompt}>
@@ -144,20 +147,42 @@ const HomePage: React.FC = () => {
               ))}
             </select>
           </div>
+
+          <div>
+            <label htmlFor="paragraphCount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Number of Paragraphs
+            </label>
+            <input
+              type="number"
+              id="paragraphCount"
+              min="1"
+              max="5"
+              value={paragraphCount}
+              onChange={(e) => setParagraphCount(Math.max(1, Math.min(5, parseInt(e.target.value) || 1)))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            />
+          </div>
         </div>
         
         <div className="flex justify-between">
           <button
             onClick={handleGenerateParagraph}
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200"
+            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200 dark:bg-blue-500 dark:hover:bg-blue-600"
           >
-            {loading ? 'Generating...' : 'Generate Paragraph'}
+            {loading ? (
+              <div className="flex items-center">
+                <LoadingSpinner size={8} />
+                <span className="ml-2">Generating...</span>
+              </div>
+            ) : (
+              'Generate Paragraph'
+            )}
           </button>
           
           <button
             onClick={resetAll}
-            className="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200 flex items-center"
+            className="px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 font-medium rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200 flex items-center"
           >
             <RotateCcw className="h-4 w-4 mr-1" /> Reset
           </button>
@@ -165,27 +190,36 @@ const HomePage: React.FC = () => {
         
         {/* Error Message */}
         {error && (
-          <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-md">
-            <p className="text-red-700">{error}</p>
+          <div className="p-4 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 rounded-md">
+            <p className="text-red-700 dark:text-red-400">{error}</p>
           </div>
         )}
         
         {/* Generated Paragraph Section */}
         {generatedParagraph && (
           <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Generated Paragraph:</h3>
-            <div className="p-4 bg-gray-50 rounded-md border border-gray-200">
-              <p className="whitespace-pre-wrap">{generatedParagraph}</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Generated Paragraph:</h3>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-md border border-gray-200 dark:border-gray-600">
+              <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">{generatedParagraph}</p>
             </div>
             
             <div className="mt-4">
               <button
                 onClick={handleTranslateParagraph}
                 disabled={translating}
-                className="px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200 flex items-center"
+                className="px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200 flex items-center dark:bg-green-500 dark:hover:bg-green-600"
               >
-                <Translate className="h-4 w-4 mr-1" />
-                {translating ? 'Translating...' : 'Translate to Indonesian'}
+                {translating ? (
+                  <div className="flex items-center">
+                    <LoadingSpinner size={8} />
+                    <span className="ml-2">Translating...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Translate className="h-4 w-4 mr-1" />
+                    Translate to Indonesian
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -194,9 +228,9 @@ const HomePage: React.FC = () => {
         {/* Translated Paragraph Section */}
         {translatedParagraph && (
           <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Indonesian Translation:</h3>
-            <div className="p-4 bg-gray-50 rounded-md border border-gray-200">
-              <p className="whitespace-pre-wrap">{translatedParagraph}</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Indonesian Translation:</h3>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-md border border-gray-200 dark:border-gray-600">
+              <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">{translatedParagraph}</p>
             </div>
           </div>
         )}
@@ -204,23 +238,32 @@ const HomePage: React.FC = () => {
         {/* User Translation Input Section */}
         {generatedParagraph && showTranslationInput && (
           <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Your Indonesian Translation:</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Your Indonesian Translation:</h3>
             <textarea
               value={userTranslation}
               onChange={(e) => setUserTranslation(e.target.value)}
               placeholder="Type your Indonesian translation here..."
               rows={5}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             />
             
             <div className="mt-4">
               <button
                 onClick={handleCorrectTranslation}
                 disabled={correcting || !userTranslation}
-                className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors duration-200 flex items-center"
+                className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors duration-200 flex items-center dark:bg-indigo-500 dark:hover:bg-indigo-600"
               >
-                <CheckCircle className="h-4 w-4 mr-1" />
-                {correcting ? 'Correcting...' : 'Correct My Translation'}
+                {correcting ? (
+                  <div className="flex items-center">
+                    <LoadingSpinner size={8} />
+                    <span className="ml-2">Correcting...</span>
+                  </div>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    Correct My Translation
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -229,9 +272,9 @@ const HomePage: React.FC = () => {
         {/* Correction Result Section */}
         {correctionResult && (
           <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Correction Result:</h3>
-            <div className="p-4 bg-gray-50 rounded-md border border-gray-200">
-              <p className="whitespace-pre-wrap">{correctionResult}</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Correction Result:</h3>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-md border border-gray-200 dark:border-gray-600">
+              <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">{correctionResult}</p>
             </div>
           </div>
         )}
