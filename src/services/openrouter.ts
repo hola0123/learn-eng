@@ -24,7 +24,6 @@ export const getModels = (): ModelOption[] => {
     }));
   } catch (error) {
     console.error('Error parsing models from environment variables:', error);
-    // Return default models if parsing fails
     return [{ id: "no-model", name: "No Model" }];
   }
 };
@@ -87,17 +86,86 @@ export const generateTenseQuestions = async (
   tenseTypes: string, 
   questionCount: number
 ): Promise<string> => {
-  return generateText({
-    model,
-    prompt: `Generate ${questionCount} multiple-choice questions to practice the following English tenses: ${tenseTypes}. Distribute the questions evenly among the selected tenses. For each question, provide 4 options (A, B, C, D), indicate the correct answer, and provide a detailed explanation of why the answer is correct. Format the output as a JSON array with the following structure: 
-    [
+  const systemPrompt = `You are an English language teacher creating multiple-choice questions to test students' understanding of English tenses. Follow these guidelines strictly:
+
+1. Create exactly ${questionCount} questions
+2. Focus on these tense types: ${tenseTypes}
+3. Each question MUST have:
+   - A clear question statement
+   - Exactly 4 options labeled A, B, C, D
+   - One correct answer
+   - A detailed explanation
+4. Format MUST be valid JSON array with this structure:
+[
+  {
+    "question": "string with the question",
+    "options": ["A. option1", "B. option2", "C. option3", "D. option4"],
+    "correctAnswer": "A/B/C/D",
+    "explanation": "detailed explanation"
+  }
+]
+5. Ensure:
+   - All JSON keys are exactly as shown
+   - Options array has exactly 4 items
+   - correctAnswer is a single letter (A, B, C, or D)
+   - No extra fields or formatting`;
+
+  const userPrompt = `Create ${questionCount} multiple-choice questions to practice these English tenses: ${tenseTypes}. 
+Make questions that test real understanding, not just memorization.
+Include a mix of:
+- Fill in the blank questions
+- Error identification
+- Correct usage selection
+- Context-based tense selection`;
+
+  try {
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
       {
-        "question": "_____ you _____ to the party yesterday?",
-        "options": ["A. Did, go", "B. Have, gone", "C. Were, going", "D. Are, going"],
-        "correctAnswer": "A",
-        "explanation": "The correct answer is A (Did, go) because this is a past simple question. We use 'did' as an auxiliary verb to form questions in the past simple tense, followed by the base form of the main verb 'go'. The event happened at a specific time in the past (yesterday)."
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 2000,
+        temperature: 0.7,
+        top_p: 1,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'English Learning App',
+        },
       }
-    ]`,
-    max_tokens: 2000,
-  });
+    );
+
+    const content = response.data.choices[0].message.content;
+    
+    // Validate JSON structure before returning
+    try {
+      const parsed = JSON.parse(content);
+      if (!Array.isArray(parsed) || parsed.length !== questionCount) {
+        throw new Error('Invalid response format');
+      }
+      
+      // Validate each question object
+      parsed.forEach((question, index) => {
+        if (!question.question || !Array.isArray(question.options) || 
+            question.options.length !== 4 || !question.correctAnswer ||
+            !question.explanation) {
+          throw new Error(`Invalid question format at index ${index}`);
+        }
+      });
+      
+      return content;
+    } catch (parseError) {
+      console.error('Error parsing response:', parseError);
+      throw new Error('Failed to parse questions. The AI response was not in the correct format.');
+    }
+  } catch (error) {
+    console.error('Error generating questions:', error);
+    throw new Error('Failed to generate questions. Please try again.');
+  }
 };
