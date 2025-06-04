@@ -11,27 +11,28 @@ interface TenseQuestion {
 }
 
 const TENSE_TYPES = [
-  "Present Simple",
-  "Present Continuous",
-  "Past Simple",
-  "Past Continuous",
-  "Present Perfect",
-  "Future Simple",
-  "Conditional",
+  "Regular Tense",
+  "Conditional Tense",
   "Inversion"
 ];
 
 const QUESTION_COUNTS = [5, 10, 15, 20];
 
 const TensePage: React.FC = () => {
-  const [selectedModel, setSelectedModel] = useState<string>('gpt-3.5-turbo');
-  const [selectedTenseTypes, setSelectedTenseTypes] = useState<string[]>([TENSE_TYPES[0]]);
-  const [selectedQuestionCount, setSelectedQuestionCount] = useState<number>(QUESTION_COUNTS[0]);
+  const [selectedModel, setSelectedModel] = useState<string>(
+    "meta-llama/llama-4-maverick:free"
+  );
+  const [selectedTenseTypes, setSelectedTenseTypes] = useState<string[]>([
+    TENSE_TYPES[0],
+  ]);
+  const [selectedQuestionCount, setSelectedQuestionCount] = useState<number>(
+    QUESTION_COUNTS[0]
+  );
   const [questions, setQuestions] = useState<TenseQuestion[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
   const [showResults, setShowResults] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
   const [models, setModels] = useState<ModelOption[]>([]);
   const [score, setScore] = useState<number>(0);
 
@@ -40,9 +41,9 @@ const TensePage: React.FC = () => {
   }, []);
 
   const handleTenseTypeToggle = (tenseType: string) => {
-    setSelectedTenseTypes(prev => {
+    setSelectedTenseTypes((prev) => {
       if (prev.includes(tenseType)) {
-        return prev.filter(type => type !== tenseType);
+        return prev.filter((type) => type !== tenseType);
       } else {
         return [...prev, tenseType];
       }
@@ -51,36 +52,38 @@ const TensePage: React.FC = () => {
 
   const handleGenerateQuestions = async () => {
     if (selectedTenseTypes.length === 0) {
-      setError('Please select at least one tense type');
+      setError("Please select at least one tense type");
       return;
     }
 
     try {
       setLoading(true);
-      setError('');
+      setError("");
       setQuestions([]);
       setUserAnswers({});
       setShowResults(false);
-      
+
       const result = await generateTenseQuestions(
         selectedModel,
-        selectedTenseTypes.join(', '),
+        selectedTenseTypes.join(", "),
         selectedQuestionCount
       );
-      
+
       try {
         const parsedQuestions = JSON.parse(result);
         if (Array.isArray(parsedQuestions)) {
           setQuestions(parsedQuestions);
         } else {
-          throw new Error('Invalid response format');
+          throw new Error("Invalid response format");
         }
       } catch (parseError) {
-        console.error('Error parsing questions:', parseError);
-        setError('Failed to parse questions. Please try again.');
+        console.error("Error parsing questions:", parseError);
+        setError("Failed to parse questions. Please try again.");
       }
     } catch (err) {
-      setError('Failed to generate questions. Please check your API key and try again.');
+      setError(
+        "Failed to generate questions. Please check your API key and try again."
+      );
       console.error(err);
     } finally {
       setLoading(false);
@@ -96,13 +99,13 @@ const TensePage: React.FC = () => {
 
   const handleCheckAnswers = () => {
     let correctCount = 0;
-    
+
     questions.forEach((question, index) => {
       if (userAnswers[index] === question.correctAnswer) {
         correctCount++;
       }
     });
-    
+
     setScore(correctCount);
     setShowResults(true);
   };
@@ -111,11 +114,11 @@ const TensePage: React.FC = () => {
     setQuestions([]);
     setUserAnswers({});
     setShowResults(false);
-    setError('');
+    setError("");
     setScore(0);
     setSelectedTenseTypes([TENSE_TYPES[0]]);
     setSelectedQuestionCount(QUESTION_COUNTS[0]);
-    setSelectedModel('gpt-3.5-turbo');
+    setSelectedModel("meta-llama/llama-4-maverick:free");
   };
 
   const getOptionClassName = (questionIndex: number, option: string) => {

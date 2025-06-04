@@ -25,10 +25,7 @@ export const getModels = (): ModelOption[] => {
   } catch (error) {
     console.error('Error parsing models from environment variables:', error);
     // Return default models if parsing fails
-    return [
-      { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
-      { id: 'gpt-4', name: 'GPT-4' }
-    ];
+    return [{ id: "no-model", name: "No Model" }];
   }
 };
 

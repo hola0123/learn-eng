@@ -8,11 +8,23 @@ const PARAGRAPH_PROMPTS = [
   "Write a short paragraph about artificial intelligence",
   "Write a short paragraph about sustainable living",
   "Write a short paragraph about cultural diversity",
-  "Write a short paragraph about space exploration"
+  "Write a short paragraph about space exploration",
+  "Write a short paragraph about the importance of mental health",
+  "Write a short paragraph about renewable energy sources",
+  "Write a short paragraph about the impact of social media",
+  "Write a short paragraph about online learning",
+  "Write a short paragraph about biodiversity conservation",
+  "Write a short paragraph about the future of transportation",
+  "Write a short paragraph about healthy eating habits",
+  "Write a short paragraph about global warming",
+  "Write a short paragraph about the benefits of reading books",
+  "Write a short paragraph about digital transformation in education",
 ];
 
 const HomePage: React.FC = () => {
-  const [selectedModel, setSelectedModel] = useState<string>('gpt-3.5-turbo');
+  const [selectedModel, setSelectedModel] = useState<string>(
+    "meta-llama/llama-4-maverick:free"
+  );
   const [selectedPrompt, setSelectedPrompt] = useState<string>(PARAGRAPH_PROMPTS[0]);
   const [paragraphCount, setParagraphCount] = useState<number>(1);
   const [generatedParagraph, setGeneratedParagraph] = useState<string>('');
